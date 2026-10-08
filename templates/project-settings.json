@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(fly *)",
+      "Bash(flyctl *)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ],
+    "ask": [
+      "Bash(git push *)"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "model": "opus",
+  "effortLevel": "high",
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+  },
+  "permissions": {
+    "deny": [
+      "Agent(Explore)"
+    ]
+  }
+}
