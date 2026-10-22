@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "compose_files": ["compose.agent.yaml"],
+  "app_service": "app",
+  "app_workdir": "/workspace",
+  "host_port": 54000
+}

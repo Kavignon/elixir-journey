@@ -1,0 +1,28 @@
+# INACTIVE: deployment inputs and every resource operation require approval.
+services:
+  postgres:
+    image: ${EJ_POSTGRES_IMAGE:?approved image digest required}
+    ports:
+      - "127.0.0.1:55432:5432"
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+    secrets:
+      - postgres_admin_password
+    volumes:
+      - type: volume
+        source: pgdata
+        target: ${EJ_POSTGRES_DATA_TARGET:?image-specific data directory required}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+volumes:
+  pgdata:
+    external: true
+    name: elixir-journey-postgres-data
+
+secrets:
+  postgres_admin_password:
+    file: ${EJ_POSTGRES_ADMIN_PASSWORD_FILE:?protected host-only secret file required}

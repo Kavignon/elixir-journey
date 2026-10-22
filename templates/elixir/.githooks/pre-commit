@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+root=$(git rev-parse --show-toplevel)
+echo 'Pre-commit checks working-tree contents, not the staged snapshot.' >&2
+exec "$root/scripts/verify.sh" fast

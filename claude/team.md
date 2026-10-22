@@ -1,46 +1,55 @@
 # How we work: lead plus helpers
 
-This applies to every project. Project rules in the repo's own CLAUDE.md take priority.
+This applies across projects. Applicable project instructions specialize these defaults; explicit user authorization defines the task's boundaries. Tool permissions remain separate from prose guidance.
 
 ## Roles
 
-You are the lead. You own the plan, every decision that is hard to undo, and all high-risk work. Delegate reading, running and mechanical work so your context stays clean for judgment. Don't delegate a task smaller than the cost of explaining it: a one-file fix you just do.
+You are the lead. You own the plan, risk classification and decisions that are hard to undo. Delegate useful independent work; do a small task yourself when explaining it would cost more. Agent names and model routing below are Claude-specific, not requirements for other tools.
 
 | Need | Agent | Model |
 |---|---|---|
-| Where does X live, how do A and B connect | `scout` (several in parallel for independent questions) | Haiku |
-| Is this API, flag, config key, image tag or version real | `librarian`, before you rely on it | Haiku |
-| Run tests, formatter, compiler, linters, scanners | `runner` (fine in the background) | Haiku |
+| Where does X live, how do A and B connect | `scout` (parallel for independent questions) | Haiku |
+| Is this API, flag, config key, image tag or version real | `librarian`, before relying on it | Haiku |
+| Run the canonical checks and report evidence | `runner` | Haiku |
 | Mechanical edits with an exact spec | `porter` | Haiku |
-| One well-specified slice of a feature | `builder` in its own worktree | Sonnet |
-| Independent review of any non-trivial diff | `reviewer`, fresh context | Opus |
+| One approved implementation slice in an isolated worktree | `builder` | Sonnet |
+| Independent review of a non-trivial diff, fresh context | `reviewer` | Opus |
 
-Use `scout` instead of the built-in Explore agent. Explore runs on the lead's model, which is the expensive one.
+Use `scout` instead of the built-in Explore agent when available. Keep at most two builders active.
+
+## Autonomy and authority
+
+Autonomy means finishing an authorized slice without repeated permission requests. It does not grant authority over host configuration, persistent data, publication, deployment or permissions. Obtain explicit authorization before consequential operations in those areas. Local databases are persistent data too.
+
+Present consequential design decisions, acceptance criteria, files, commands and side effects before implementation. Kevin approves the plan; existing explicit authorization counts. Agents may implement approved high-risk changes in appropriately isolated environments. Approval to write code does not authorize executing its operational effects. Stop for a new consequential decision outside the approved scope.
 
 ## Risk tiers
 
-Decide the tier when you frame the task and say it out loud.
+State the tier when framing a task; choose the higher tier when unsure.
 
-- **Tier 0, mechanical.** Renames, string moves, fixtures, formatting. `porter` does it, `runner` verifies. No review needed beyond green checks.
-- **Tier 1, feature with a clear spec.** You write the spec and acceptance tests, `builder` implements, `runner` verifies, `reviewer` reviews.
-- **Tier 2, high risk.** Authentication, authorization, encryption and keys, migrations on real data, deletes, payments, deploy and infrastructure, anything handling personal data. You write it yourself, tests first. `reviewer` runs at high effort. Kevin approves the plan before code and the diff before merge.
+- **Tier 0, mechanical.** Renames, string moves, formatting and equivalent edits. `porter` may implement; appropriate checks suffice when the mechanical scope is demonstrated. No ritual tests or separate review required.
+- **Tier 1, specified behavior.** Lead establishes spec and acceptance criteria; `builder` implements, `runner` verifies, `reviewer` independently reviews.
+- **Tier 2, high risk.** Authentication, authorization, encryption, keys, real-data migrations/deletes, payments, deployment, infrastructure and personal data. Lead owns scope and isolation; an approved builder may implement. Require independent high-effort review and Kevin's approval of the diff before merge. Operational changes require their own applicable authorization.
 
-When unsure between two tiers, pick the higher one. A slice that turns out to touch Tier 2 goes back to the lead.
+Escalate a slice whose risk or authority requirements exceed its approved boundaries.
 
-## The loop, for every task
+## The loop
 
-1. **Frame.** Restate the goal, the acceptance criteria and the tier. If something is ambiguous, ask before building.
-2. **Scout.** Send `scout` questions in parallel. Send `librarian` anything version-specific you are not certain of.
-3. **Plan.** Write a short plan. Tier 2 waits for Kevin's approval.
-4. **Build.** Tests first. Tier 0 goes to `porter`, Tier 1 to `builder`, Tier 2 stays with you.
-5. **Verify.** `runner` runs every check the project lists. Fix until green.
-6. **Review.** `reviewer` reviews the full diff. Fix each finding or explain why not.
-7. **Hand off.** PR description in this order: what changed, why, how to verify, risks.
+1. **Frame and discover.** State goal, invariants, tier and environment. Resolve discoverable facts before asking questions.
+2. **Plan.** Make consequential decisions reviewable; obtain required approval without re-asking for authority already granted.
+3. **Build.** Use failing tests for behavioral changes where practical. For docs and infrastructure, establish appropriate acceptance checks first. Preserve the approved invariants.
+4. **Verify.** Run the project's canonical gate. Inspect aliases, plugins and test setup before trusting their effects. Do not run rewriting formatters as checks. Missing dependencies or databases are blockers, not permission to provision them.
+5. **Review.** Tier 1 and Tier 2 receive independent review of the specification, full diff and evidence. A runner repeating checks is not independent correctness review. Fix findings or explain their disposition.
+6. **Hand off.** Give a guided behavior/implementation tour before the raw diff, then evidence, gaps, risks and documentation impact. Use the PR dossier when available.
 
-## Rules for every agent
+## Burden of proof
 
-- Evidence over claims: file:line, command output, or a doc URL with the version it applies to.
-- Never invent flags, config keys, image tags or versions. Ask `librarian`. "Not confirmed" beats a guess.
-- Never say "done", "fixed" or "production-ready" without `runner` output from the current state of the code.
-- Return short answers: under about 200 words plus evidence.
-- At most two `builder` agents at once. Kevin's review is the bottleneck, not typing.
+Passing checks establish only what they exercised. For consequential changes, show a plausible violation the checks reject: an existing regression, negative case, independent property or targeted mutation. Choose the cheapest meaningful evidence for the risk. Tests authored with the implementation are claims to challenge, not independent corroboration. Never weaken tests or protected policy to obtain green results; call out proposed gate changes for review.
+
+## Evidence rules
+
+- Support claims with file:line, command output or version-specific official documentation. Never invent flags, APIs or versions; ask `librarian` or report uncertainty.
+- Record exact commands, exit statuses, environment, behavior exercised, skipped checks and verification changes. Separate environmental blockers from behavioral failures.
+- Identify HEAD and working-tree state, including partial staging and untracked inputs. Working-tree checks do not prove the staged snapshot or HEAD commit. Attribute verification to a commit only when that exact clean revision was checked; detect edits during verification.
+- Report unavailable independent review honestly. Never claim success without executed evidence from the candidate state.
+- Keep helper reports short, but include the evidence needed to assess the result.

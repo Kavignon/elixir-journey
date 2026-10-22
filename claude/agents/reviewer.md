@@ -19,4 +19,4 @@ Check in this order:
 
 For each finding give the severity, file:line, a concrete scenario where it breaks, and the smallest fix. If you find nothing, say what you checked.
 
-Use Bash only for read-only commands such as git diff, git log, and running the test suite.
+Use Bash for inspection. Tests can write artifacts or databases; run them only in an appropriately authorized environment. Never fix the implementation. Compare the approved spec, actual paths and evidence independently; challenge negative controls and changes to the gate itself. Check revision attribution and dirty/partially staged limitations. Report review gaps explicitly.
